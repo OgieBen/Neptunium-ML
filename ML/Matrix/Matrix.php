@@ -21,30 +21,17 @@ class Matrix {
     }
 
     public static function multiply(Array $array1, Array $array2) {
-        //for array two colums are to be arranged in rows;
-        //echo "<br/><br/>Matrix 0ne:";
+      
         list($dim1, $dim2) = self::getDimension($array1);
-        //echo "<br/><br/>Matrix Two:";
+       
         list($dim3, $dim4) = self::getDimension($array2);
-        // echo $dim1 .'  '.$dim2.' '. $dim3.' '. $dim4;
+       
         $results = array();
         $vecSum = 0;
         //use number of rows as dim values to get columns
         self::$dim = $dim1;
         self::$dimCol = $dim3;
-        /*  if ($dim2 == $dim4 ) {
-          // if ($dim1 == $dim3) {
-          for ($i = 0; $i < count($array1); $i++) {
-          $vecSum += ($array1[$i] * $array2[$i]);
-          }
-          echo "<br/><br/>***Mutiply outputs: " . $vecSum;
-          return $vecSum;
-          //  }
-          echo "<br/>Error: Matrices are of different length "
-          . "<br/>Matrix one: Of Dim " . $dim1 . ' x ' . $dim2
-          . "<br/> Matrix two: Of Dim " . $dim3 . ' x ' . $dim4;
-          return false;
-          } else */
+       
         if (($dim2) == $dim4) {
             echo "<br/>Resulting array : " . $dim1 . ' x ' . $dim3;
             $index = 0;
