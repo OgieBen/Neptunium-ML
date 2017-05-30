@@ -16,7 +16,7 @@ class Boost {
         $predictedLabels = array();
 
 
-        /* $sample must be 3-d matrix or array.
+        /* $sample must be 3-d matrix or array
          * an array that holds other 2-d array(s)
          * 
          * TODO: validate matrix or array
@@ -48,13 +48,13 @@ class Boost {
      */
 
     public static function train(
-    $trainer = 'ada', $weakL = ['dStump'], $sample, $labels) {
+    $trainer = 'ada', $weakL = ['dStump'], $sample, $labels, $runs = 100) {
         $probArray = [];
         $sampleSize = count($sample);
         for ($i = 0; $i < $sampleSize; $i++) {
             array_push($probArray, (1 / $sampleSize));
         }
-        
+
         $boost = strtolower($trainer) . 'Boost';
         return self::$boost($weakL, $sample, $labels, $probArray);
     }
@@ -69,31 +69,28 @@ class Boost {
         $sampleSize = count($sample);
         // $probTempArray = [$probArrayM];
         $hypothesis = [];
-        $wyhTop=0;
+        $wyhTop = 0;
         $wyhBottom = 0;
         $eTemp = [];
 
         for ($i = 0; $i < count($weakL); $i++) {
 
             //use weakL to check and call weak learners
- 
-            $learner = $weakL[$i]; 
+
+            $learner = $weakL[$i];
             $wkL = self::$learner($sample);
-           array_push($hypothesis, $wkL);
+            array_push($hypothesis, $wkL);
 
             //run through the results of the decision stump 
             for ($trck = 0; $trck < count($wkL); $trck++) {
                 //check for misclassification
                 $temp[$trck] = ($wkL[$trck] != $labels[$trck] );
                 if ($temp[$trck]) {
-                    var_dump($wkL[$trck]);
+                    // var_dump($wkL[$trck]);
                     //send in weight values of the misclassified samples
                     $eTemp[$trck] = $probArrayM[$trck];
-                    // array_push( $weight, (1 / 2 * (log((1 / $error[$trck]) - 1))));
                 }
             }
-
-           
 
             array_push($error, $e = array_sum($eTemp));
 
@@ -101,43 +98,38 @@ class Boost {
             array_push($weight, $w = (0.5 * (log((1 / $e) - 1))));
 
             for ($j = 0; $j < $sampleSize; $j++) {
-                
+
                 $wyhBottom += ($probArrayM[$j]) * (exp(-($w * $wkL[$j] * $labels[$j])));
                 var_dump($wyhBottom);
-                
             }
-            
+
             $f = 0;
             foreach ($temp as $predLabel) {
-                if($predLabel){
-                $wyhTop = $probArrayM[$f] * exp(-($w * $wkL[$f] * $labels[$f]));
-                $probArrayM[$f] = ($wyhTop/$wyhBottom);         
+                if ($predLabel) {
+                    $wyhTop = $probArrayM[$f] * exp(-($w * $wkL[$f] * $labels[$f]));
+                    $probArrayM[$f] = ($wyhTop / $wyhBottom);
                 }
                 $f++;
             }
 
-           
-            
+
+
             $eTemp = array();
         }
 
-          return [$weight,$hypothesis]; 
+        return [$weight, $hypothesis];
     }
 
-   public static function evaluateStrgHyp($weight,$hypothesis,$sampleId)
-   {
-       $pred = 0;
-      
-       for($i =0;$i<count($weight);$i++)
-       {
-         
-         $pred += $weight[$i]* $hypothesis[$i][$sampleId]; 
-        
-       }
-       return $pred;
-   }    
-    
-    
+    public static function evaluateStrgHyp($weight, $hypothesis, $sampleId) {
+        $pred = 0;
+
+        for ($i = 0; $i < count($weight); $i++) {
+
+            $pred += $weight[$i] * $hypothesis[$i][$sampleId];
+        }
+        return $pred;
+    }
+
     /*
      * computes the average of Summed Area Table(SAT)
      */
