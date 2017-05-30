@@ -21,17 +21,30 @@ class Matrix {
     }
 
     public static function multiply(Array $array1, Array $array2) {
-      
+        //for array two colums are to be arranged in rows;
+        //echo "<br/><br/>Matrix 0ne:";
         list($dim1, $dim2) = self::getDimension($array1);
-       
+        //echo "<br/><br/>Matrix Two:";
         list($dim3, $dim4) = self::getDimension($array2);
-       
+        // echo $dim1 .'  '.$dim2.' '. $dim3.' '. $dim4;
         $results = array();
         $vecSum = 0;
         //use number of rows as dim values to get columns
         self::$dim = $dim1;
         self::$dimCol = $dim3;
-       
+        /*  if ($dim2 == $dim4 ) {
+          // if ($dim1 == $dim3) {
+          for ($i = 0; $i < count($array1); $i++) {
+          $vecSum += ($array1[$i] * $array2[$i]);
+          }
+          echo "<br/><br/>***Mutiply outputs: " . $vecSum;
+          return $vecSum;
+          //  }
+          echo "<br/>Error: Matrices are of different length "
+          . "<br/>Matrix one: Of Dim " . $dim1 . ' x ' . $dim2
+          . "<br/> Matrix two: Of Dim " . $dim3 . ' x ' . $dim4;
+          return false;
+          } else */
         if (($dim2) == $dim4) {
             echo "<br/>Resulting array : " . $dim1 . ' x ' . $dim3;
             $index = 0;
@@ -119,7 +132,7 @@ class Matrix {
         echo 'ben';
     }
 
-    static function transformToRow(Array $result, int $dim) {
+    public static function transformToRow(Array $result, int $dim) {
         $temp = array();
         $numOfStops = count($result) / $dim;
         // echo $numOfStops;
@@ -136,7 +149,7 @@ class Matrix {
         return false;
     }
 
-    static function split(Array $array, int $index) {
+   public static function split(Array $array, int $index) {
         $temp = array();
         for ($i = 0; $i < $index; $i++) {
             array_push($temp, array_shift($array));
@@ -146,7 +159,7 @@ class Matrix {
         return array($temp, $array);
     }
 
-    static function transpose(Array $matrix) {
+   public static function transpose(Array $matrix) {
         //check if columns are of equal lengths before proceeding with flow
         $temp = array();
         if (is_array($matrix[0])) {
@@ -161,7 +174,7 @@ class Matrix {
         return false;
     }
 
-    static function getDim() {
+    public static function getDim() {
 
         if (is_numeric((self::$dim))) {
             return self::$dim;
@@ -170,7 +183,7 @@ class Matrix {
         throw new \Exception(self::$DIM_ERR . ' --Description-- The value ' . self::$dim . ' was given --');
     }
 
-    static function getDimCol() {
+    public static function getDimCol() {
 
         if (is_numeric((self::$dimCol))) {
             return self::$dimCol;
@@ -180,7 +193,7 @@ class Matrix {
     }
 
     //use to group results row wise for scalar multiplication
-    static function stripColumn(Array $array, $column) {
+   public  static function stripColumn(Array $array, $column) {
         $temp = array();
         //strips column values from the matrix into a single vector
         for ($i = 0; $i < count($array); $i++) {//runs to the end of the matrix
@@ -191,7 +204,7 @@ class Matrix {
 
     //used to group results column wise for scalar multiplication
     //                                array or matrix , number of rows
-    static function transformToColumn(Array $array) {
+   public static function transformToColumn(Array $array) {
         //the real transpose
         $arrayHolder = array();
         $temp = array();
@@ -235,6 +248,11 @@ class Matrix {
         echo "<br/> Error : " . __METHOD__ . " Could number could not create equal numbers of elements in columns ";
     }
 
+    
+    /*
+     * prototype: used to display arrays
+     * still under development
+     */
     public static function displayMatrix($array, $dim = null) {
         $tracker = 0;
         echo "<br/>::Display Output::";
@@ -278,7 +296,12 @@ class Matrix {
             }
         }echo " <br/>}<br/>";
     }
-
+             
+    /*
+     * computes the determinant of 
+     * an array.
+     * 
+     */
     public static function det($matrix) {
         $temp = $matrix;
         $val = 0;
@@ -388,7 +411,12 @@ class Matrix {
     public function adjoint() {
         //swap rows then calculate adjoint
     }
-
+    
+    /*
+     * computes the inverse of an array
+     * Note: this function has note been optimized
+     * 
+     */
     public function inverse($matrix) {
 
         $mat = array();
@@ -430,10 +458,12 @@ class Matrix {
             return $inv;
         }
     }
-
+         /*
+          * iteratively moves each row to back until every 
+             row has be tranversed
+          */
     public static function iterativePushToBack($matrix) {
-        /*iteratively moves each row to back until every 
-         row has be tranversed*/
+       
         $popVal = array_shift($matrix);
         array_push($matrix, $popVal);
         return $matrix;
@@ -474,6 +504,10 @@ class Matrix {
         return $retrieve;
     }
 
+    /*
+     * compute the minors of a matrix or array of values
+     * 
+     */
     public static function getMinors($matrix) {
         $detH = array();
         for ($rowM = 0; $rowM < count($matrix); $rowM++) {
@@ -521,7 +555,9 @@ class Matrix {
         return $matrix;
     }
     
-    
+    /* gets the sign(-/+) associated 
+     * with a given element in a matrix
+     */
     public static function getSign($tRow)
     {
           for ($r = 0; $r < count($tRow); $r++) {
@@ -532,6 +568,14 @@ class Matrix {
                 }
             }
             return $tRow;
+    }
+    
+    /* gets the depth(dimension) of a matrix
+     * 
+     */
+    public function getDepth()
+    {
+        
     }
 
 }
