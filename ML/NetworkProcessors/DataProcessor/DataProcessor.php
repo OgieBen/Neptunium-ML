@@ -1,5 +1,4 @@
 <?php
-<?php
 
 //$image = imagecreatefromjpeg(__DIR__.'/A1.png'); // imagecreatefromjpeg/png/
 
