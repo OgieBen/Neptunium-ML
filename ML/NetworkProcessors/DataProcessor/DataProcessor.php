@@ -1,10 +1,15 @@
 <?php
+<?php
 
 //$image = imagecreatefromjpeg(__DIR__.'/A1.png'); // imagecreatefromjpeg/png/
 
 namespace DataProcessor;
 
 use ErrorException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
+use RecursiveRegexIterator;
 
 class DataProcessor {
 
@@ -33,13 +38,18 @@ class DataProcessor {
 
     public function imageData($imagePath, $bool = false, $altType = null) {
         //'../Tests/A1.png'
-        $imageDetail = array();
+        
         $imageDetail = explode('.', $imagePath);
 
         if (file_exists($imagePath)) {
 
-            //  print_r($imageDetail);
-            //use this
+
+            /* checks if type is jpeg or 
+             * any other common type.
+             * This -if-statement is not 
+             * really necessary
+             */
+
             if (!$bool) {
                 $type = strtolower($imageDetail[(count($imageDetail)) - 1]);
                 if (array_key_exists($type, $this->types)) {
@@ -50,7 +60,9 @@ class DataProcessor {
                     //   echo "-----".$this->types[$type]($imagePath);
                     throw new \ErrorException(self::$TYPE_ERR);
                 }
+                //if type is someother type
             } else {
+
                 if (array_key_exists($type = $altType, $this->types)) {
                     $image = $this->types[$type]($imagePath);
                 } else {
@@ -129,7 +141,6 @@ class DataProcessor {
         return $subWindow;
     }
 
-    
     /* fetch gets different areas of an image based on a given stride
      * default is is 1
      * 
@@ -203,20 +214,19 @@ class DataProcessor {
         /*
          * validate matrix here
          */
-            
-        var_dump($imageData);
+
+        //var_dump($imageData);
         //flows down
         $sumDown = self::sumDown($imageData);
-          var_dump($sumDown);
+        // var_dump($sumDown);
         //flows right
         $sumRight = self::sumRight($sumDown);
-        
+
         return $sumRight;
-        
     }
 
     private static function sumRight($sumDown) {
-       
+
         $temp = array();
         $holder = array();
         $val = 0;
@@ -231,7 +241,6 @@ class DataProcessor {
                 } else {
                     $val += $sumDown[$row][$col];
                     array_push($temp, $val);
-                    
                 }
             }
             array_push($holder, $temp);
@@ -247,7 +256,7 @@ class DataProcessor {
         $colIndex = 1;
         for ($row = 0; $row < (count($imageData)); $row++) {
             for ($col = 0; $col < (count($imageData[0])); $col++) {
-                
+
                 if ($rowIndex < count($imageData)) {
                     $imageData[$rowIndex][$col] = $imageData[$row][$col] + $imageData[$rowIndex][$col];
                 }
@@ -258,4 +267,64 @@ class DataProcessor {
         return $imageData;
     }
 
+    public static function simpleResize($newWidth, $newHeight, $src, $fileDes = null) {
+        /*
+         * proportion: test
+         */
+
+
+        /* if($oldHeight > $newHeight)
+          {
+          $oldwidth = ($newHeight / $oldHeight) * $oldwidth;
+          }
+
+          if($oldWidth > $newWidth)
+          {
+          $oldHeight = ($newHeight / $oldHeight) * $oldHeight;
+          }
+
+         * 
+         */
+        list( $oldWidth, $oldHeight) = getimagesize($src);
+
+        $sample = imagecreatetruecolor($newWidth, $newHeight);
+         $sr = imagecreatefromjpeg($src);
+        if (imagecopyresampled($sample, $sr, 0, 0, 0, 0, $newWidth, $newHeight, $oldWidth, $oldHeight)) {
+            // imagecopyresized($sample, $src, 0, 0, 0, 0, $newWidth, $newHeight, $oldWidth, $oldHeight);
+            imagefilter($sample, IMG_FILTER_GRAYSCALE);
+            if (is_null($fileDes)) {
+                imagejpeg($sample,$src);
+                return true;
+            }
+            return imagejpeg($sample, $fileDes);
+        }
+        return false;
+    }
+    
+    public function retrieveFiles($path, $pattern=null)
+    {
+        try{
+        $cursor = new RecursiveIteratorIterator(
+                                new \RecursiveDirectoryIterator($path),
+                                \RecursiveIteratorIterator::SELF_FIRST
+                );
+        }catch(\Throwable $err)
+        {
+            echo" \nProblems with given Directory ";
+            exit;
+        }
+        
+        $patt = '/^.'.  str_replace('.', '\\.', $pattern).'/';
+        $regExIt = new \RegexIterator($cursor, $patt);
+        
+        $runIterator = ($pattern) ? $regExIt : $cursor;
+        foreach($runIterator as $it)
+        {
+            if(is_dir($it)){continue;}
+            yield str_replace("\\", '/', $it);
+        }
+    }
+ 
+
+    
 }
